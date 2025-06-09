@@ -1,4 +1,4 @@
-FROM --platform=linux/arm/v7 python:3.11-slim
+FROM balenalib/raspberrypi3-python:3.11
 
 WORKDIR /app
 
@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir aiohttp python-socketio
 
 EXPOSE 8000
 
-CMD ["python", "server.py"]
+CMD ["python3", "server.py"]
