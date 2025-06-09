@@ -1,0 +1,11 @@
+FROM --platform=linux/arm/v7 python:3.11-slim
+
+WORKDIR /app
+
+COPY server.py .
+
+RUN pip install --no-cache-dir aiohttp python-socketio
+
+EXPOSE 8000
+
+CMD ["python", "server.py"]
