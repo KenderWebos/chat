@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Socket.io Tester</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 0 20px; }
+        #log { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-top: 10px; background: #f9f9f9; }
+        .controls { display: grid; gap: 10px; margin-bottom: 20px; }
+        .system { color: #888; font-style: italic; }
+        .msg { margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <h2>Socket.io Tester</h2>
+    
+    <div class="controls">
+        <div>
+            <input type="text" id="room" placeholder="Nombre de sala (ej: VIP)">
+            <button onclick="joinRoom()">Unirse (Join)</button>
+            <button onclick="leaveRoom()">Salir (Leave)</button>
+        </div>
+        <div>
+            <input type="text" id="message" placeholder="Escribe un mensaje...">
+            <button onclick="sendMessage()">Enviar (Message)</button>
+        </div>
+    </div>
+
+    <div id="log"></div>
+
+    <script>
+        const socket = io("http://localhost:8000");
+        const logDiv = document.getElementById('log');
+        const roomInput = document.getElementById('room');
+        const msgInput = document.getElementById('message');
+
+        // Listeners
+        socket.on("connect", () => addLog("Conectado al servidor", "system"));
+        
+        socket.on("system", (data) => addLog(data, "system"));
+        
+        socket.on("message", (data) => {
+            addLog(`<b>${data.sid.slice(-4)}:</b> ${data.msg}`);
+        });
+
+        socket.on("disconnect", () => addLog("Desconectado", "system"));
+
+        // Emisores
+        function joinRoom() {
+            const room = roomInput.value;
+            if(room) socket.emit("join", { room });
+        }
+
+        function leaveRoom() {
+            const room = roomInput.value;
+            if(room) socket.emit("leave", { room });
+        }
+
+        function sendMessage() {
+            const room = roomInput.value || "global";
+            const msg = msgInput.value;
+            if(msg) {
+                socket.emit("message", { room, msg });
+                msgInput.value = "";
+            }
+        }
+
+        function addLog(text, className = "") {
+            const p = document.createElement('p');
+            p.className = `msg ${className}`;
+            p.innerHTML = text;
+            logDiv.appendChild(p);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>
