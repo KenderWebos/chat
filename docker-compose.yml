@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  socket-app:
+    container_name: chat-socket-app
+    build:
+      context: ./js/socket-app
+      dockerfile: Dockerfile
+    ports:
+      - "7777:8000"
+    environment:
+      - NODE_ENV=production
+      - PORT=8000
+    restart: unless-stopped
+    networks:
+      - chat-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Descomentar si necesitas el backend Python
+  # backend:
+  #   container_name: chat-backend
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.backend
+  #   ports:
+  #     - "8001:8001"
+  #   environment:
+  #     - DATABASE_URL=sqlite:///./test.db
+  #   restart: unless-stopped
+  #   networks:
+  #     - chat-network
+
+networks:
+  chat-network:
+    driver: bridge
